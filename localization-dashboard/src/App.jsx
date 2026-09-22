@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { API_URL } from "./apiConfig";
 
 function sortByTitle(items, field, ascending){
   const sorted = [...items].sort((a,b) => {
@@ -23,7 +24,7 @@ function App(){
   useEffect (() => {
     const fetchData = async () => {
       try{
-        const response = await fetch('http://localhost:3000/api/items');
+        const response = await fetch(`${API_URL}/api/items`);
         if(!response.ok){
           throw new Error(`HTTP error! Status ${response.status}`)
         }
@@ -57,7 +58,7 @@ function App(){
   async function updateStatus(id, newStatus){
     console.log(id + " status changed to: " + newStatus);
     try{
-      const response = await fetch(`http://localhost:3000/api/items/${id}`, {
+      const response = await fetch(`${API_URL}/api/items/${id}`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({status: newStatus}),
