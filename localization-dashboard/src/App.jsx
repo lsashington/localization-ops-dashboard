@@ -12,7 +12,13 @@ function sortByTitle(items, field, ascending){
   return sorted;
 }
 
-
+function filterByStatus(items, status){
+  if(status === "All"){
+    return items;
+  }else{
+    return items.filter((item) => item.status === status)
+  }
+}
 
 function App(){
   const [sortAscending, setSortAscending] = useState(true);
@@ -47,13 +53,7 @@ function App(){
     }
   }
 
-  function filterByStatus(items, status){
-    if(status === "All"){
-      return items;
-    }else{
-      return items.filter((item) => item.status === status)
-    }
-  }
+
 
   async function updateStatus(id, newStatus){
     console.log(id + " status changed to: " + newStatus);
@@ -70,6 +70,18 @@ function App(){
     }catch(err){
       setError(err.message)
     };
+  }
+
+  async function deleteItem(id){
+    try{
+    const response = await fetch(`${API_URL}/api/items/${id}`, { method: "DELETE"});
+    if(!response.ok){
+        throw new Error(`HTTP error! Status ${response.status}`)
+      }
+      setContentItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    }catch(err){
+      setError(err.message)
+    }
   }
   
   return(
@@ -89,6 +101,7 @@ function App(){
           <th><button onClick={() => handleSort("title")}>Title</button></th>
           <th><button onClick={() => handleSort("status")}>Status</button></th>
           <th><button onClick={() => handleSort("vendor")}>Vendor</button></th>
+          <th>Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -104,6 +117,7 @@ function App(){
                 </select>
               </td>
               <td>{item.vendor}</td>
+              <td><button onClick={() => deleteItem(item.id)}>DELETE</button></td>
             </tr>
           ))}
         </tbody>

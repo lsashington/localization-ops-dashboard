@@ -24,6 +24,17 @@ app.put('/api/items/:id', async (req, res) => {
   res.json(updated);
 });
 
+app.delete('/api/items/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
+  try {
+    await prisma.contentItem.delete({ where: { id } });
+    res.json({ message: 'deleted' });
+  } catch (err) {
+    res.status(404).json({ message: 'Item not found' });
+  }
+});
+
 app.listen(process.env.PORT || 3000, () => {
   console.log('Server running on http://localhost:3000');
 });
+
