@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { API_URL } from "./apiConfig";
+import { ContentItem, SortField } from "./types";
 
-function sortByTitle(items, field, ascending){
+function sortByTitle(items: ContentItem[], field: "title" | "status" | "vendor", ascending: boolean){
   const sorted = [...items].sort((a,b) => {
     if(ascending){
       return a[field].localeCompare(b[field]);
@@ -12,7 +13,7 @@ function sortByTitle(items, field, ascending){
   return sorted;
 }
 
-function filterByStatus(items, status){
+function filterByStatus(items: ContentItem[], status: string){
   if(status === "All"){
     return items;
   }else{
@@ -22,10 +23,10 @@ function filterByStatus(items, status){
 
 function App(){
   const [sortAscending, setSortAscending] = useState(true);
-  const [sortColumn, setSortColumn] = useState("title");
+  const [sortColumn, setSortColumn] = useState<SortField>("title");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [contentItems, setContentItems] = useState([]);
-  const [error, setError] = useState(null);
+  const [contentItems, setContentItems] = useState<ContentItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect (() => {
     const fetchData = async () => {
@@ -37,14 +38,14 @@ function App(){
         const data = await response.json();
         setContentItems(data);
       }catch(err){
-        setError(err.message);
+        setError(err instanceof Error ? err.message : "Something went wrong");
       }
       
     };
     fetchData();
   },[]);
 
-  function handleSort(field){
+  function handleSort(field: "title" | "status" | "vendor"){
     if(field === sortColumn){
      setSortAscending(!sortAscending);
     }else{
@@ -55,7 +56,7 @@ function App(){
 
 
 
-  async function updateStatus(id, newStatus){
+  async function updateStatus(id: number, newStatus: ContentItem["status"]){
     console.log(id + " status changed to: " + newStatus);
     try{
       const response = await fetch(`${API_URL}/api/items/${id}`, {
@@ -68,11 +69,11 @@ function App(){
       }
       setContentItems((prevItems) => prevItems.map((item) => item.id === id ? {...item, status: newStatus} : item));
     }catch(err){
-      setError(err.message)
+      setError(err instanceof Error ? err.message : "Something went wrong");
     };
   }
 
-  async function deleteItem(id){
+  async function deleteItem(id : number){
     try{
     const response = await fetch(`${API_URL}/api/items/${id}`, { method: "DELETE"});
     if(!response.ok){
@@ -80,7 +81,7 @@ function App(){
       }
       setContentItems((prevItems) => prevItems.filter((item) => item.id !== id));
     }catch(err){
-      setError(err.message)
+      setError(err instanceof Error ? err.message : "Something went wrong");
     }
   }
   
@@ -109,7 +110,7 @@ function App(){
             <tr key={item.title}>
               <td>{item.title}</td>
               <td>
-                <select value={item.status} onChange={(e) => {updateStatus(item.id, e.target.value)}}>
+                <select value={item.status} onChange={(e) => {updateStatus(item.id, e.target.value as ContentItem["status"])}}>
                   <option value="In Translation">In Translation</option>
                   <option value="Ordered">Ordered</option>
                   <option value="QA">QA</option>
