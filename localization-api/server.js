@@ -17,20 +17,26 @@ app.get('/api/items', async (req, res) => {
 });
 
 app.put('/api/items/:id', async (req, res) => {
-  const updated = await prisma.contentItem.update({
-    where: { id: parseInt(req.params.id) },
-    data: { status: req.body.status },
-  });
-  res.json(updated);
+  const id = parseInt(req.params.id);
+  try{
+    const update = await prisma.contentItem.update({
+      where: {id},
+      data: {status: req.body.status}
+    });
+    res.json(update);
+  }catch(err){
+    res.status(404).json({message: "Could not update"});
+    console.log(err);
+  }
 });
 
 app.delete('/api/items/:id', async (req, res) => {
   const id = parseInt(req.params.id);
-  try {
-    await prisma.contentItem.delete({ where: { id } });
-    res.json({ message: 'deleted' });
-  } catch (err) {
-    res.status(404).json({ message: 'Item not found' });
+  try{
+    await prisma.contentItem.delete({where: {id}});
+    res.json({message:"Item deleted"});
+  }catch(err){
+    res.status(404).json({message: "Item was not found"});
   }
 });
 
