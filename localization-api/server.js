@@ -44,3 +44,13 @@ app.listen(process.env.PORT || 3000, () => {
   console.log('Server running on http://localhost:3000');
 });
 
+app.post('/api/items', async (req, res) =>{
+  try{
+    const create = await prisma.contentItem.create({data: {title:req.body.title, status: req.body.status, vendor: req.body.vendor}});
+    res.status(201).json(create);
+  }catch(err){
+    res.status(500).json({message: "Could not create"});
+    console.log(err);
+  }
+});
+

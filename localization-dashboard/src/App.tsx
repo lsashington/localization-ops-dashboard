@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { API_URL } from "./apiConfig";
 import { ContentItem, SortField } from "./types";
+import type { SyntheticEvent } from "react"; 
 
 function sortByTitle(items: ContentItem[], field: "title" | "status" | "vendor", ascending: boolean){
   const sorted = [...items].sort((a,b) => {
@@ -27,6 +28,7 @@ function App(){
   const [statusFilter, setStatusFilter] = useState("All");
   const [contentItems, setContentItems] = useState<ContentItem[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [newItem, setNewItem] = useState<Omit<ContentItem , "id">>({title:"", status: "QA", vendor: ""});
 
   useEffect (() => {
     const fetchData = async () => {
@@ -84,6 +86,28 @@ function App(){
       setError(err instanceof Error ? err.message : "Something went wrong");
     }
   }
+
+  async function handleSubmit(e: SyntheticEvent<HTMLFormElement>){
+    e.preventDefault();
+    try{
+      const response = await fetch(`${API_URL}/api/items` , {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(newItem)
+      })
+
+      if(!response.ok){
+        throw new Error(`HTTP error! Create`)
+      }
+      
+      const data = await response.json();
+  
+      setContentItems(prev => [...prev, data]);
+      setNewItem({title:"", status: "QA", vendor: ""});
+    }catch(err){
+      setError(err instanceof Error ? err.message : "Could not submit")
+    }
+  }
   
   return(
     <div>
@@ -96,6 +120,21 @@ function App(){
         <option value="QA">QA</option>
         <option value="Delivered">Delivered</option>
       </select>
+      <br></br>
+      <form onSubmit={handleSubmit}>
+      <label>Title</label>
+      <input placeholder="Title" value={newItem.title} onChange={(e) => setNewItem(prev => ({...prev, title: e.target.value}))}></input>
+      <label>Vendor</label>
+      <input placeholder="Vendor" value={newItem.vendor} onChange={(e) => setNewItem(prev => ({...prev, vendor: e.target.value}))}></input>
+      <label>Status</label>
+      <select value={newItem.status} onChange={(e) => setNewItem(prev => ({...prev, status: e.target.value as ContentItem["status"]}))}>
+        <option value="Ordered">Ordered</option>
+        <option value="In Translation">In Translation</option>
+        <option value="QA">QA</option>
+        <option value="Delivered">Delivered</option>
+      </select>
+      <button type="submit">Add</button>
+      </form>
       <table>
         <thead>
         <tr>
