@@ -3,7 +3,7 @@ const { PrismaPg } = require('@prisma/adapter-pg');
 const { PrismaClient } = require('./generated/prisma');
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient({ adapter, log: ['query'] });
 
 const express = require('express');
 const app = express();
@@ -12,31 +12,32 @@ app.use(express.json());
 app.use(cors());
 
 app.get('/api/items', async (req, res) => {
-  const items = await prisma.contentItem.findMany();
+  const items = await prisma.contentItem.findMany({orderBy: {id: 'asc'}});
   res.json(items);
 });
 
-app.put('/api/items/:id', async (req, res) => {
+app.put('/api/items/:id',  async (req, res) => {
   const id = parseInt(req.params.id);
   try{
-    const update = await prisma.contentItem.update({
+    const response = await prisma.contentItem.update({
       where: {id},
       data: {status: req.body.status}
     });
-    res.json(update);
+    res.json(response);
   }catch(err){
-    res.status(404).json({message: "Could not update"});
     console.log(err);
+    res.status(404).json({message: "Could not update"});
   }
 });
 
-app.delete('/api/items/:id', async (req, res) => {
+app.delete('/api/items/:id', async (req, res) =>{
   const id = parseInt(req.params.id);
   try{
-    await prisma.contentItem.delete({where: {id}});
-    res.json({message:"Item deleted"});
+    const response = await prisma.contentItem.delete({where : {id}});
+    res.status(200).json(response);
   }catch(err){
-    res.status(404).json({message: "Item was not found"});
+    console.log(err);
+    res.status(404).json({message: "Could not delete"});
   }
 });
 
@@ -44,13 +45,12 @@ app.listen(process.env.PORT || 3000, () => {
   console.log('Server running on http://localhost:3000');
 });
 
-app.post('/api/items', async (req, res) =>{
+app.post('/api/items' ,  async (req, res) =>{
   try{
-    const create = await prisma.contentItem.create({data: {title:req.body.title, status: req.body.status, vendor: req.body.vendor}});
-    res.status(201).json(create);
+    const response = await prisma.contentItem.create({data: {title: req.body.title, status: req.body.status, vendor: req.body.vendor}});
+    res.status(201).json(response);
   }catch(err){
-    res.status(500).json({message: "Could not create"});
     console.log(err);
+    res.status(500).json({message: "Could not Create"});
   }
 });
-
