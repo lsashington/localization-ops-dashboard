@@ -17,4 +17,5 @@ model ContentItem {
   title  String
   status String
   vendor String
+  dueDate DateTime?
 }

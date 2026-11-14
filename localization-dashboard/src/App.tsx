@@ -2,9 +2,27 @@ import { useEffect, useState } from "react";
 import { API_URL } from "./apiConfig";
 import { ContentItem, SortField } from "./types";
 import type { SyntheticEvent } from "react"; 
+import { getRisk, RISK_RANK } from "./risk";
 
-function sortByTitle(items: ContentItem[], field: "title" | "status" | "vendor", ascending: boolean){
+function sortByTitle(items: ContentItem[], field: SortField, ascending: boolean){
   const sorted = [...items].sort((a,b) => {
+    if(field === "dueDate"){
+      if(a.dueDate === null && b.dueDate === null) return 0
+      if(a.dueDate === null) return 1;
+      if(b.dueDate === null) return -1;
+
+      const aTime = new Date(a.dueDate).getTime();
+      const bTime = new Date(b.dueDate).getTime();
+      return ascending ? aTime - bTime : bTime - aTime;
+    }
+
+    if(field === "risk"){
+      const aRank = RISK_RANK[getRisk(a.dueDate, a.status)];
+      const bRank = RISK_RANK[getRisk(b.dueDate, b.status)];
+      if(aRank >= 3 || bRank >= 3) return aRank - bRank;
+      return ascending ? aRank - bRank : bRank - aRank;
+    }    
+
     if(ascending){
       return a[field].localeCompare(b[field]);
     }else{
@@ -28,7 +46,7 @@ function App(){
   const [statusFilter, setStatusFilter] = useState("All");
   const [contentItems, setContentItems] = useState<ContentItem[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [newItem, setNewItem] = useState<Omit<ContentItem , "id">>({title:"", status: "QA", vendor: ""});
+  const [newItem, setNewItem] = useState<Omit<ContentItem , "id">>({title:"", status: "QA", vendor: "", dueDate: null});
 
   useEffect (() => {
     const fetchData = async () => {
@@ -47,7 +65,7 @@ function App(){
     fetchData();
   },[]);
 
-  function handleSort(field: "title" | "status" | "vendor"){
+  function handleSort(field: SortField){
     if(field === sortColumn){
      setSortAscending(!sortAscending);
     }else{
@@ -103,7 +121,7 @@ function App(){
       const data = await response.json();
   
       setContentItems(prev => [...prev, data]);
-      setNewItem({title:"", status: "QA", vendor: ""});
+      setNewItem({title:"", status: "QA", vendor: "", dueDate: null});
     }catch(err){
       setError(err instanceof Error ? err.message : "Could not submit")
     }
@@ -141,6 +159,8 @@ function App(){
           <th><button onClick={() => handleSort("title")}>Title</button></th>
           <th><button onClick={() => handleSort("status")}>Status</button></th>
           <th><button onClick={() => handleSort("vendor")}>Vendor</button></th>
+          <th><button onClick={() => handleSort("dueDate")}>Due</button></th>
+          <th><button onClick={() => handleSort("risk")}>Risk</button></th>
           <th>Actions</th>
         </tr>
         </thead>
@@ -157,6 +177,8 @@ function App(){
                 </select>
               </td>
               <td>{item.vendor}</td>
+              <td>{item.dueDate ? new Date(item.dueDate).toLocaleDateString() : "-"}</td>
+              <td>{getRisk(item.dueDate, item.status)}</td>
               <td><button onClick={() => deleteItem(item.id)}>DELETE</button></td>
             </tr>
           ))}

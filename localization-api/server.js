@@ -16,24 +16,21 @@ app.get('/api/items', async (req, res) => {
   res.json(items);
 });
 
-app.put('/api/items/:id',  async (req, res) => {
+app.put('/api/items/:id', async (req, res) => {
   const id = parseInt(req.params.id);
   try{
-    const response = await prisma.contentItem.update({
-      where: {id},
-      data: {status: req.body.status}
-    });
-    res.json(response);
+    const response = await prisma.contentItem.update({where: {id}, data:{status: req.body.status}});
+    res.status(200).json(response);
   }catch(err){
     console.log(err);
-    res.status(404).json({message: "Could not update"});
+    res.status(404).json({message: "Could not update"})
   }
 });
 
-app.delete('/api/items/:id', async (req, res) =>{
+app.delete('/api/items/:id', async (req, res) => {
   const id = parseInt(req.params.id);
   try{
-    const response = await prisma.contentItem.delete({where : {id}});
+    const response = await prisma.contentItem.delete({where:{id}});
     res.status(200).json(response);
   }catch(err){
     console.log(err);
@@ -45,12 +42,13 @@ app.listen(process.env.PORT || 3000, () => {
   console.log('Server running on http://localhost:3000');
 });
 
-app.post('/api/items' ,  async (req, res) =>{
+
+app.post('/api/items/', async (req,res) => {
   try{
-    const response = await prisma.contentItem.create({data: {title: req.body.title, status: req.body.status, vendor: req.body.vendor}});
+    const response = await prisma.contentItem.create({data:{title: req.body.title, status: req.body.status, vendor: req.body.vendor}});
     res.status(201).json(response);
   }catch(err){
     console.log(err);
-    res.status(500).json({message: "Could not Create"});
+    res.status(500).json({message: "Could not create post"});
   }
 });
