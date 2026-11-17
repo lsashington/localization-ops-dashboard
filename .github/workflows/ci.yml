@@ -11,10 +11,10 @@ jobs:
       run:
         working-directory: localization-dashboard
     steps:
-      - uses: actions/checkout@v4          # step 1: get your code
-      - uses: actions/setup-node@v4        # step 2: get Node
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm ci                         # step 3: install packages
-      - run: npx tsc --noEmit               # step 4: type check
-      - run: npm test                       # step 5: tests
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm test
