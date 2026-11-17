@@ -109,3 +109,44 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+@keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+  	50% {
+      opacity: 0.5;
+    }
+  }
+
+.badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.badge-overdue{
+  animation: pulse 2s ease-in-out infinite;
+  background-color: #dc2626;
+  color: #fff;
+}
+
+.badge-soon{background-color:#facc15; color: #111;}
+
+.badge-ok{background-color:#86efac; color: #111;}
+
+.badge-done{background-color:#000; color:#fff;}
+
+.badge-none{border:1px solid #9ca3af; background-color:#fff; color: #111;}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge-overdue {
+    animation:none;
+  }
+}

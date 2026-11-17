@@ -3,6 +3,8 @@ import { API_URL } from "./apiConfig";
 import { ContentItem, SortField } from "./types";
 import type { SyntheticEvent } from "react"; 
 import { getRisk, RISK_RANK } from "./risk";
+import { RISK_STYLE } from "./riskStyle";
+import { AlertTriangle } from "lucide-react";
 
 function sortByTitle(items: ContentItem[], field: SortField, ascending: boolean){
   const sorted = [...items].sort((a,b) => {
@@ -165,8 +167,11 @@ function App(){
         </tr>
         </thead>
         <tbody>
-          {sortByTitle(filterByStatus(contentItems, statusFilter), sortColumn, sortAscending).map((item) => (
-            <tr key={item.title}>
+          {sortByTitle(filterByStatus(contentItems, statusFilter), sortColumn, sortAscending).map((item) => {
+            const risk = getRisk(item.dueDate, item.status);
+            const {Icon, label} = RISK_STYLE[risk];
+            return(
+            <tr key={item.id}>
               <td>{item.title}</td>
               <td>
                 <select value={item.status} onChange={(e) => {updateStatus(item.id, e.target.value as ContentItem["status"])}}>
@@ -178,10 +183,11 @@ function App(){
               </td>
               <td>{item.vendor}</td>
               <td>{item.dueDate ? new Date(item.dueDate).toLocaleDateString() : "-"}</td>
-              <td>{getRisk(item.dueDate, item.status)}</td>
+              <td><span className={`badge badge-${risk}`}><Icon size={14}/>{label}</span></td>
               <td><button onClick={() => deleteItem(item.id)}>DELETE</button></td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
     </div>
