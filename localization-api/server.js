@@ -44,7 +44,7 @@ app.listen(process.env.PORT || 3000, () => {
 
 app.post('/api/items/', async (req, res) =>{
   try{
-    const response = await prisma.contentItem.create({data:{title: req.body.title, status: req.body.status, vendor: req.body.vendor}});
+    const response = await prisma.contentItem.create({data:{title: req.body.title, status: req.body.status, vendor: req.body.vendor, dueDate: req.body.dueDate ? new Date(req.body.dueDate) : null}});
     res.status(201).json(response);
   }catch(err){
     console.log(err);

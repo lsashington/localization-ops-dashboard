@@ -121,9 +121,9 @@ function App(){
       }
       
       const data = await response.json();
-  
+    
       setContentItems(prev => [...prev, data]);
-      setNewItem({title:"", status: "QA", vendor: "", dueDate: null});
+      setNewItem({title:"", status: "QA", vendor: "", dueDate: ""});
     }catch(err){
       setError(err instanceof Error ? err.message : "Could not submit")
     }
@@ -153,6 +153,8 @@ function App(){
         <option value="QA">QA</option>
         <option value="Delivered">Delivered</option>
       </select>
+      <label>Due Date</label>
+      <input placeholder="XX/XX/XXXX" type="date" value={newItem.dueDate ?? ""} onChange={(e) => setNewItem(prev => ({...prev, dueDate: e.target.value}))}></input>
       <button type="submit">Add</button>
       </form>
       <table>
@@ -182,7 +184,7 @@ function App(){
                 </select>
               </td>
               <td>{item.vendor}</td>
-              <td>{item.dueDate ? new Date(item.dueDate).toLocaleDateString() : "-"}</td>
+              <td>{item.dueDate ? new Date(item.dueDate).toLocaleDateString("en-US", {timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit'}) : "-"}</td>
               <td><span className={`badge badge-${risk}`}><Icon size={14}/>{label}</span></td>
               <td><button onClick={() => deleteItem(item.id)}>DELETE</button></td>
             </tr>
