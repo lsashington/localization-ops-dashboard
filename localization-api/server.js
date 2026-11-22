@@ -42,9 +42,16 @@ app.listen(process.env.PORT || 3000, () => {
   console.log('Server running on http://localhost:3000');
 });
 
-app.post('/api/items/', async (req, res) =>{
+app.post('/api/items/', async (req, res) => {
+  const title = req.body.title?.trim();
+  const vendor = req.body.vendor?.trim();
+  const status = req.body.status?.trim();
+  const allowed = ["QA","Ordered","In Translation","Delivered"];
+  if(!title) {return res.status(422).json({message: "Title cannot be empty"});}
+  if(!vendor) {return res.status(422).json({message: "Vendor cannot be empty"});}
+  if(!allowed.includes(status)){return res.status(422).json({message: "Status is not valid"});}
   try{
-    const response = await prisma.contentItem.create({data:{title: req.body.title, status: req.body.status, vendor: req.body.vendor, dueDate: req.body.dueDate ? new Date(req.body.dueDate) : null}});
+    const response = await prisma.contentItem.create({data: {title: title, status: req.body.status, vendor: vendor, dueDate: req.body.dueDate ? new Date(req.body.dueDate) : null}});
     res.status(201).json(response);
   }catch(err){
     console.log(err);

@@ -114,13 +114,14 @@ function App(){
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(newItem)
-      })
-
-      if(!response.ok){
-        throw new Error(`HTTP error! Create`)
-      }
+      });     
       
       const data = await response.json();
+
+      if(!response.ok){
+        data.message ?? "Could not create item";
+        throw new Error(data.message);
+      }
     
       setContentItems(prev => [...prev, data]);
       setNewItem({title:"", status: "QA", vendor: "", dueDate: ""});
@@ -143,9 +144,9 @@ function App(){
       <br></br>
       <form onSubmit={handleSubmit}>
       <label>Title</label>
-      <input placeholder="Title" value={newItem.title} onChange={(e) => setNewItem(prev => ({...prev, title: e.target.value}))}></input>
+      <input placeholder="Title" value={newItem.title} onChange={(e) => setNewItem(prev => ({...prev, title: e.target.value}))} required></input>
       <label>Vendor</label>
-      <input placeholder="Vendor" value={newItem.vendor} onChange={(e) => setNewItem(prev => ({...prev, vendor: e.target.value}))}></input>
+      <input placeholder="Vendor" value={newItem.vendor} onChange={(e) => setNewItem(prev => ({...prev, vendor: e.target.value}))} required></input>
       <label>Status</label>
       <select value={newItem.status} onChange={(e) => setNewItem(prev => ({...prev, status: e.target.value as ContentItem["status"]}))}>
         <option value="Ordered">Ordered</option>
